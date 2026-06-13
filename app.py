@@ -35,42 +35,30 @@ try:
 
     with col2:
         dependents = st.slider("👨‍👩‍👧 Jumlah Tanggungan", min_value=0, max_value=5, value=1)
-        education = st.selectbox("🎓 Pendidikan", options=["Graduate", "Not Graduate"])
-        self_employed = st.selectbox("💼 Wiraswasta?", options=["No", "Yes"])
         residential_assets = st.number_input("🏠 Nilai Aset Rumah (₹)", min_value=0, max_value=30000000, value=2000000, step=500000)
-
-    col3, col4 = st.columns(2)
-    with col3:
         commercial_assets = st.number_input("🏬 Nilai Aset Komersial (₹)", min_value=0, max_value=20000000, value=1000000, step=500000)
         luxury_assets = st.number_input("💎 Nilai Aset Mewah (₹)", min_value=0, max_value=20000000, value=500000, step=500000)
-    with col4:
-        bank_assets = st.number_input("🏛️ Nilai Aset Bank (₹)", min_value=0, max_value=20000000, value=500000, step=500000)
 
+    bank_assets = st.number_input("🏛️ Nilai Aset Bank (₹)", min_value=0, max_value=20000000, value=500000, step=500000)
     st.divider()
 
     if st.button("🔍 Prediksi Sekarang", type="primary", use_container_width=True):
-
-        # Encoding sama persis seperti di Colab
-        edu_enc  = 0 if education == "Graduate" else 1
-        emp_enc  = 0 if self_employed == "No" else 1
 
         # Feature engineering sama persis seperti di Colab
         loan_to_income = loan_amount / income if income > 0 else 0
         total_assets   = residential_assets + commercial_assets + luxury_assets + bank_assets
 
-        # Urutan fitur HARUS sama persis dengan X_train
+        # Urutan fitur SAMA PERSIS dengan X_train
         features = [
             'no_of_dependents', 'income_annum', 'loan_amount', 'loan_term',
             'cibil_score', 'residential_assets_value', 'commercial_assets_value',
             'luxury_assets_value', 'bank_asset_value',
-            'education', 'self_employed',
             'loan_to_income_ratio', 'total_assets'
         ]
 
         data_input = pd.DataFrame([[
             dependents, income, loan_amount, loan_term, cibil_score,
             residential_assets, commercial_assets, luxury_assets, bank_assets,
-            edu_enc, emp_enc,
             loan_to_income, total_assets
         ]], columns=features)
 
