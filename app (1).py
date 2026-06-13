@@ -1,11 +1,18 @@
 import streamlit as st
-import joblib
+import pickle
 import numpy as np
 import pandas as pd
 
 # ── Load model & scaler ──────────────────────────────────────────
-model  = joblib.load('best_model.joblib')
-scaler = joblib.load('scaler.joblib')
+@st.cache_resource
+def load_model():
+    with open('best_model.joblib', 'rb') as f:
+        model = pickle.load(f)
+    with open('scaler.joblib', 'rb') as f:
+        scaler = pickle.load(f)
+    return model, scaler
+
+model, scaler = load_model()
 
 features = [
     'no_of_dependents', 'income_annum', 'loan_amount', 'loan_term',
