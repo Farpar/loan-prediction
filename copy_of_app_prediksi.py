@@ -149,10 +149,3 @@ if st.button("🔍 Prediksi Sekarang", use_container_width=True, type="primary")
 st.divider()
 st.caption("🎓 Final Project AI & Big Data 2026 | Loan Approval Prediction System")
 
-!streamlit run app.py &>/dev/null &
-
-# Mendapatkan IP publik Colab Anda (diperlukan sebagai password LocalTunnel)
-!wget -qO- ipv4.icanhazip.com
-
-# Menjalankan LocalTunnel di port 8501
-!npx localtunnel --port 8501
