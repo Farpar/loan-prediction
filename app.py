@@ -1,10 +1,10 @@
+%%writefile app.py
 import streamlit as st
 import joblib
 import numpy as np
 import pandas as pd
 
 st.set_page_config(page_title="Loan Approval Prediction", page_icon="🏦", layout="centered")
-
 st.title("🏦 Loan Approval Prediction System")
 st.write("Masukkan data pemohon untuk memprediksi kelayakan pinjaman.")
 
@@ -17,7 +17,6 @@ def load_model():
 try:
     model, scaler = load_model()
 
-    # ── Metrik model (wajib sesuai ketentuan tugas) ──
     st.divider()
     col_m1, col_m2, col_m3, col_m4 = st.columns(4)
     col_m1.metric("Model", "Random Forest")
@@ -37,28 +36,42 @@ try:
 
     with col2:
         dependents = st.slider("👨‍👩‍👧 Jumlah Tanggungan", min_value=0, max_value=5, value=1)
+        education = st.selectbox("🎓 Pendidikan", options=["Graduate", "Not Graduate"])
+        self_employed = st.selectbox("💼 Wiraswasta?", options=["No", "Yes"])
         residential_assets = st.number_input("🏠 Nilai Aset Rumah (₹)", min_value=0, max_value=30000000, value=2000000, step=500000)
+
+    col3, col4 = st.columns(2)
+    with col3:
         commercial_assets = st.number_input("🏬 Nilai Aset Komersial (₹)", min_value=0, max_value=20000000, value=1000000, step=500000)
         luxury_assets = st.number_input("💎 Nilai Aset Mewah (₹)", min_value=0, max_value=20000000, value=500000, step=500000)
+    with col4:
+        bank_assets = st.number_input("🏛️ Nilai Aset Bank (₹)", min_value=0, max_value=20000000, value=500000, step=500000)
 
-    bank_assets = st.number_input("🏛️ Nilai Aset Bank (₹)", min_value=0, max_value=20000000, value=500000, step=500000)
     st.divider()
 
     if st.button("🔍 Prediksi Sekarang", type="primary", use_container_width=True):
-        # Feature engineering sama persis seperti di training
+
+        # Encoding sama persis seperti di Colab
+        edu_enc  = 0 if education == "Graduate" else 1
+        emp_enc  = 0 if self_employed == "No" else 1
+
+        # Feature engineering sama persis seperti di Colab
         loan_to_income = loan_amount / income if income > 0 else 0
         total_assets   = residential_assets + commercial_assets + luxury_assets + bank_assets
 
+        # Urutan fitur HARUS sama persis dengan X_train
         features = [
             'no_of_dependents', 'income_annum', 'loan_amount', 'loan_term',
             'cibil_score', 'residential_assets_value', 'commercial_assets_value',
             'luxury_assets_value', 'bank_asset_value',
+            'education', 'self_employed',
             'loan_to_income_ratio', 'total_assets'
         ]
 
         data_input = pd.DataFrame([[
             dependents, income, loan_amount, loan_term, cibil_score,
             residential_assets, commercial_assets, luxury_assets, bank_assets,
+            edu_enc, emp_enc,
             loan_to_income, total_assets
         ]], columns=features)
 
@@ -90,7 +103,7 @@ try:
                 st.warning("💡 Profil pemohon belum memenuhi kriteria persetujuan.")
 
 except FileNotFoundError:
-    st.error("⚠️ File model tidak ditemukan. Pastikan 'best_model.joblib' dan 'scaler.joblib' sudah ada.")
+    st.error("⚠️ File model tidak ditemukan.")
 except Exception as e:
     st.error(f"Terjadi kesalahan: {e}")
 
